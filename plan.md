@@ -114,6 +114,21 @@ All 4 modules can be developed and simulated independently.
 - Prepare system block diagram for demo
 - Write final report
 
+## Testbench Requirements (Per Person)
+
+Each person must write a testbench for their module. Required for grading (5 pts). This is also the only way to verify correctness before the VGA cable arrives.
+
+| Person | Module | What to Verify |
+|--------|--------|----------------|
+| 1 | `vga_sync.v` | HSYNC period = 800 clocks, VSYNC period = 525 lines, pulse widths match spec, `video_active` is high only in the 640x480 visible region |
+| 2 | `frame_capture.v` | Inject fake PCLK/VSYNC/HREF/DATA signals mimicking OV7670 timing. Verify correct RGB444 values written to sequential BRAM addresses, address resets on VSYNC |
+| 3 | `frame_buffer.v` | Write known data to port A, read back from port B, verify correct values. Test simultaneous read/write to different addresses |
+| 4 | `filter.v` | Feed known RGB444 values in, check output: grayscale math is correct, inversion is bitwise NOT, channel isolation zeros out the right channels. Pure combinational — simplest testbench |
+
+**Notes:**
+- **Person 2's testbench is the most involved** — simulate OV7670 output timing (VSYNC pulse, then HREF lines with byte pairs on each PCLK edge). The existing `tb_top.v` already does this for a single pixel; extend that pattern to generate a full frame.
+- **Person 3** can add a UART dump path in their testbench — write a known test pattern to BRAM, read it back out via UART, and verify the hex output matches. Gives confidence the buffer works before VGA is available.
+
 ## Testing Strategy (Before VGA Cable Arrives)
 
 1. **Simulation:** All modules can be fully simulated in Vivado
