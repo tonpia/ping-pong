@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find:*)",
+      "Read(//c/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/**)"
+    ]
+  }
+}
