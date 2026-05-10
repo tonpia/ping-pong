@@ -2,6 +2,10 @@
 2020.2
 Nov 14 2025
 19:37:27
-C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.sim/sim_1/behav/xsim/glbl.v,1778384552,verilog,,,,glbl,,,,,,,,
-,,,,,,tb_frame_buffer,,,,,,,,
-C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sources_1/new/frame_buffer.v,1778387342,verilog,,C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sim_1/new/tb_frame_buffer.v,,frame_buffer,,,../../../../../../../../AMDDesignTools/2025.2/Vivado/data/rsb/busdef,,,,,
+C:/Users/pipem/Downloads/ping-pong/ov7670_uart_test.sim/sim_1/behav/xsim/glbl.v,1778387814,verilog,,,,glbl,,uvm,,,,,,
+C:/Users/pipem/Downloads/ping-pong/ov7670_uart_test.srcs/sim_1/new/tb_frame_buffer.v,1778388019,verilog,,,,tb_frame_buffer,,,../../../../../../../../AMDDesignTools/2025.2/Vivado/data/rsb/busdef,,,,,
+C:/Users/pipem/Downloads/ping-pong/ov7670_uart_test.srcs/sim_1/new/tb_frame_capture.v,1778388112,verilog,,,,tb_frame_capture,,,../../../../../../../../AMDDesignTools/2025.2/Vivado/data/rsb/busdef,,,,,
+C:/Users/pipem/Downloads/ping-pong/ov7670_uart_test.srcs/sim_1/new/tb_vga_sync.v,1778391088,systemVerilog,,,,tb_vga_sync,,uvm,../../../../../../../../AMDDesignTools/2025.2/Vivado/data/rsb/busdef,,,,,
+C:/Users/pipem/Downloads/ping-pong/ov7670_uart_test.srcs/sources_1/new/frame_buffer.v,1778388019,verilog,,C:/Users/pipem/Downloads/ping-pong/ov7670_uart_test.srcs/sim_1/new/tb_frame_buffer.v,,frame_buffer,,,../../../../../../../../AMDDesignTools/2025.2/Vivado/data/rsb/busdef,,,,,
+C:/Users/pipem/Downloads/ping-pong/ov7670_uart_test.srcs/sources_1/new/frame_capture.v,1778388931,verilog,,C:/Users/pipem/Downloads/ping-pong/ov7670_uart_test.srcs/sim_1/new/tb_frame_capture.v,,frame_capture,,,../../../../../../../../AMDDesignTools/2025.2/Vivado/data/rsb/busdef,,,,,
+C:/Users/pipem/Downloads/ping-pong/ov7670_uart_test.srcs/sources_1/new/vga_sync.v,1778387814,verilog,,,,vga_sync,,uvm,../../../../../../../../AMDDesignTools/2025.2/Vivado/data/rsb/busdef,,,,,

@@ -10,7 +10,8 @@
       "Bash(conda run:*)",
       "Bash(cmd.exe /C \"conda run -n cocotb python -c \"\"import cocotb; print\\(cocotb.__version__\\)\"\"\")",
       "Bash(cmd.exe /C \"conda run -n cocotb python -c \"\"import cocotb; print\\(cocotb.__version__\\)\"\" && conda run -n cocotb cocotb-config --version\")",
-      "Bash(cmd.exe /C \"conda activate cocotb && python -c \"\"import cocotb; print\\(cocotb.__version__\\)\"\"\")"
+      "Bash(cmd.exe /C \"conda activate cocotb && python -c \"\"import cocotb; print\\(cocotb.__version__\\)\"\"\")",
+      "Bash(git checkout *)"
     ]
   }
 }

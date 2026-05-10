@@ -1,13 +1,19 @@
 Time resolution is 1 ps
---- Test 1: sequential write (clk_a) then read-back (clk_b) ---
-PASS  addr=0  value=abc
-PASS  addr=1  value=def
-PASS  addr=76799  value=f0f
---- Test 2: simultaneous read/write different addresses ---
-PASS  addr=100  value=123
-PASS  addr=200  value=456
---- Test 3: frame corner addresses ---
-PASS  addr=319  value=caf
-PASS  addr=76480  value=bee
-=== ALL TESTS PASSED ===
-$finish called at time : 301 ns : File "C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sim_1/new/tb_frame_buffer.v" Line 156
+=== VGA Sync Testbench Start ===
+[180000] Reset released
+=== VGA Sync Testbench Start ===
+[180000] Reset released
+[PASS] VSYNC pulse width = 1600 clocks
+[PASS] VSYNC period = 420000 clocks
+[PASS] VSYNC pulse width = 1600 clocks
+
+=== Spot-check: counter values after reset ===
+[PASS] pixel_x = 0 while reset asserted
+[PASS] pixel_y = 0 while reset asserted
+[PASS] pixel_x wraps to 0 after 800 clocks
+[PASS] pixel_y = 1 after 800 clocks
+
+=== VGA Sync Testbench Complete ===
+HSYNC periods checked: 1050
+RESULT: ALL TESTS PASSED
+$finish called at time : 33672300 ns : File "C:/Users/pipem/Downloads/ping-pong/ov7670_uart_test.srcs/sim_1/new/tb_vga_sync.v" Line 250

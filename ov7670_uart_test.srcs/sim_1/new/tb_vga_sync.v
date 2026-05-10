@@ -205,27 +205,26 @@ module tb_vga_sync;
         $display("=== Spot-check: counter values after reset ===");
         reset = 1;
         repeat (3) @(posedge clk);
-        reset = 0;
-        @(posedge clk);
-
-        // After reset, counters should start at 0
+        // Sample while reset is still asserted: synchronous reset holds counters at 0
         if (pixel_x !== 0) begin
-            $display("[ERROR] pixel_x should be 0 after reset, got %0d", pixel_x);
+            $display("[ERROR] pixel_x should be 0 while reset asserted, got %0d", pixel_x);
             errors = errors + 1;
         end else begin
-            $display("[PASS] pixel_x = 0 after reset");
+            $display("[PASS] pixel_x = 0 while reset asserted");
         end
         if (pixel_y !== 0) begin
-            $display("[ERROR] pixel_y should be 0 after reset, got %0d", pixel_y);
+            $display("[ERROR] pixel_y should be 0 while reset asserted, got %0d", pixel_y);
             errors = errors + 1;
         end else begin
-            $display("[PASS] pixel_y = 0 after reset");
+            $display("[PASS] pixel_y = 0 while reset asserted");
         end
+        reset = 0;
 
-        // Run 800 clocks — pixel_x should wrap, pixel_y should increment
+        // Run a full line (800 clocks). pixel_x wraps through 0..799 and back to 0;
+        // pixel_y advances by one line.
         repeat (800) @(posedge clk);
         if (pixel_x !== 0) begin
-            $display("[ERROR] pixel_x should be 0 after 800 clocks, got %0d", pixel_x);
+            $display("[ERROR] pixel_x should be 0 after 800 clocks (wrapped), got %0d", pixel_x);
             errors = errors + 1;
         end else begin
             $display("[PASS] pixel_x wraps to 0 after 800 clocks");
