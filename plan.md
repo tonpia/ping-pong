@@ -58,12 +58,15 @@ We already have a working OV7670 UART test project:
 - Reset address on VSYNC
 - Address range: 0 to 76,799 (320 x 240)
 
-### 3. `frame_buffer.v` — Dual-Port BRAM
-- Port A: write port (from frame_capture, clocked by system clock)
-- Port B: read port (from VGA controller, clocked by system clock)
+### 3. `frame_buffer.v` — Dual-Port BRAM (true dual-clock)
+- Port A: write port from frame_capture, clocked by `clk_a` = 100 MHz sys clock
+- Port B: read port from VGA / pixel_scaler, clocked by `clk_b` = 25 MHz pixel clock
+- Independent clocks per port — Xilinx true dual-port BRAM performs the
+  100 MHz ↔ 25 MHz CDC inside the memory array, so no external synchronizers
+  or FIFOs are needed
 - 320x240 = 76,800 entries x 12 bits
-- Use Vivado block RAM inference or explicit BRAM instantiation
-- Handle read-during-write: read-first or no-change mode
+- Use Vivado block RAM inference (`(* ram_style = "block" *)`) or explicit BRAM instantiation
+- Output is registered — `dout_b` valid 1 `clk_b` cycle after `addr_b` is presented
 
 ### 4. `filter.v` — Image Processing Filters
 - Input: 12-bit RGB444 pixel
@@ -75,11 +78,18 @@ We already have a working OV7670 UART test project:
   - `11` = color channel isolation (red only, or configurable via SW[3:2])
 - Pure combinational logic, no state needed
 
-### 5. `pixel_scaler.v` — 2x Pixel Doubling (or inline in VGA read logic)
+### 5. `pixel_scaler.v` — 2x Pixel Doubling + read-side glue (or inline in top.v)
 - VGA outputs 640x480 but frame buffer is 320x240
 - Horizontal: hold each pixel for 2 pixel clocks → pixel_x[9:1] = buffer column
 - Vertical: read same row for 2 consecutive lines → pixel_y[9:1] = buffer row
 - BRAM read address = pixel_y[9:1] * 320 + pixel_x[9:1]
+- **Blanking guard:** during blanking, raw pixel_x reaches 799 and pixel_y reaches
+  524, which after halving gives addresses up to 84,239 (> 76,799). Either
+  gate the address with `video_active` or mask `addr_b` to a safe value when
+  outside the visible region
+- **Latency compensation:** frame_buffer adds 1 `clk_b` of read latency, so
+  drive `addr_b` one pixel ahead of the displayed pixel and register
+  `video_active` by one cycle to align it with `dout_b`
 
 ### 6. Updated `top.v`
 - Instantiate all new modules
@@ -153,15 +163,16 @@ Note: Verify these against the Basys 3 schematic/master XDC before use.
 
 ## Clock Domains
 
-| Clock        | Frequency | Source           | Used By                          |
-|--------------|-----------|------------------|----------------------------------|
-| clk (sys)    | 100 MHz   | Basys 3 crystal  | SCCB, UART, control logic        |
-| cam_xclk     | 25 MHz    | clk_div (÷4)     | OV7670 master clock              |
-| cam_pclk     | ~25 MHz   | OV7670 output    | Pixel data sampling              |
-| vga_pclk     | 25 MHz    | clk_div or same  | VGA pixel output                 |
+| Clock        | Frequency | Source           | Used By                                              |
+|--------------|-----------|------------------|------------------------------------------------------|
+| clk (sys)    | 100 MHz   | Basys 3 crystal  | SCCB, UART, control logic, frame_capture, BRAM `clk_a` |
+| cam_xclk     | 25 MHz    | clk_div (÷4)     | OV7670 master clock                                  |
+| cam_pclk     | ~25 MHz   | OV7670 output    | Pixel data sampling (sync'd into sys clk)            |
+| vga_pclk     | 25 MHz    | clk_div (÷4)     | vga_sync, pixel_scaler, BRAM `clk_b`                 |
 
 - cam_pclk is an external clock — all camera signals must be synchronized into sys clk domain (already done in current design with 3-stage shift registers)
-- VGA pixel clock can reuse the same 25MHz from clk_div
+- VGA pixel clock reuses the same 25 MHz output from clk_div
+- The 100 MHz ↔ 25 MHz crossing for the frame buffer is absorbed by the dual-clock BRAM itself (`clk_a` / `clk_b`); no FIFO or external synchronizer is required
 
 ## Grading Checklist
 

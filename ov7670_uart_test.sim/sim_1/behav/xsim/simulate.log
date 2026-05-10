@@ -1,29 +1,13 @@
 Time resolution is 1 ps
-Time=0 | led=0000000000000000 | uart_tx=1
-Time=705000 | led=1000000000000000 | uart_tx=1
-=== Injecting fake VSYNC pulse ===
-=== Injecting HREF + pixel data ===
-=== Expected: PX: ABCD ===
-Time=1235000 | led=1000000011001101 | uart_tx=1
-Time=1245000 | led=1100000011001101 | uart_tx=1
-Time=1285000 | led=1100000011001101 | uart_tx=0
-Time=44685000 | led=1100000011001101 | uart_tx=1
-Time=53365000 | led=1100000011001101 | uart_tx=0
-Time=62045000 | led=1100000011001101 | uart_tx=1
-Time=70725000 | led=1100000011001101 | uart_tx=0
-Time=79405000 | led=1100000011001101 | uart_tx=1
-Time=88135000 | led=1100000011001101 | uart_tx=0
-=== Second frame ===
-Time=105755000 | led=1100000000110100 | uart_tx=0
-Time=105765000 | led=1000000000110100 | uart_tx=0
-Time=122855000 | led=1000000000110100 | uart_tx=1
-Time=140215000 | led=1000000000110100 | uart_tx=0
-Time=148895000 | led=1000000000110100 | uart_tx=1
-Time=157575000 | led=1000000000110100 | uart_tx=0
-Time=166255000 | led=1000000000110100 | uart_tx=1
-Time=174985000 | led=1000000000110100 | uart_tx=0
-Time=192345000 | led=1000000000110100 | uart_tx=1
-Time=201025000 | led=1000000000110100 | uart_tx=0
-Time=209705000 | led=1000000000110100 | uart_tx=1
-=== Done ===
-$finish called at time : 209862 ns : File "C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.srcs/sim_1/new/tb_top.v" Line 124
+--- Test 1: sequential write (clk_a) then read-back (clk_b) ---
+PASS  addr=0  value=abc
+PASS  addr=1  value=def
+PASS  addr=76799  value=f0f
+--- Test 2: simultaneous read/write different addresses ---
+PASS  addr=100  value=123
+PASS  addr=200  value=456
+--- Test 3: frame corner addresses ---
+PASS  addr=319  value=caf
+PASS  addr=76480  value=bee
+=== ALL TESTS PASSED ===
+$finish called at time : 301 ns : File "C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sim_1/new/tb_frame_buffer.v" Line 156
