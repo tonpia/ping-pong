@@ -1,0 +1,10 @@
+<testsuites name="results">
+  <testsuite name="all" package="all">
+    <property name="random_seed" value="1778386134" />
+    <testcase name="test_reset_values" classname="test_vga_sync" file="C:\Users\Lightcone\Documents\GitHub\ping-pong\test\test_vga_sync.py" lineno="24" time="0.002757549285888672" sim_time_ns="200.0" ratio_time="72528.16877053432" />
+    <testcase name="test_h_counter_wraps_at_800" classname="test_vga_sync" file="C:\Users\Lightcone\Documents\GitHub\ping-pong\test\test_vga_sync.py" lineno="37" time="0.07973098754882812" sim_time_ns="32240.0" ratio_time="404359.7225013157" />
+    <testcase name="test_hsync_timing" classname="test_vga_sync" file="C:\Users\Lightcone\Documents\GitHub\ping-pong\test\test_vga_sync.py" lineno="56" time="1.6226978302001953" sim_time_ns="634480.0" ratio_time="391003.17273593874" />
+    <testcase name="test_vsync_timing" classname="test_vga_sync" file="C:\Users\Lightcone\Documents\GitHub\ping-pong\test\test_vga_sync.py" lineno="93" time="77.45878720283508" sim_time_ns="32480240.0" ratio_time="419322.8576500509" />
+    <testcase name="test_video_active" classname="test_vga_sync" file="C:\Users\Lightcone\Documents\GitHub\ping-pong\test\test_vga_sync.py" lineno="128" time="32.49205207824707" sim_time_ns="15392240.0" ratio_time="473723.2343138114" />
+  </testsuite>
+</testsuites>

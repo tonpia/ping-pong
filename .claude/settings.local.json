@@ -2,7 +2,15 @@
   "permissions": {
     "allow": [
       "Bash(find:*)",
-      "Read(//c/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/**)"
+      "Read(//c/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/**)",
+      "Bash(bash -c:*)",
+      "Bash(conda info:*)",
+      "Bash(where:*)",
+      "Bash(pip show:*)",
+      "Bash(conda run:*)",
+      "Bash(cmd.exe /C \"conda run -n cocotb python -c \"\"import cocotb; print\\(cocotb.__version__\\)\"\"\")",
+      "Bash(cmd.exe /C \"conda run -n cocotb python -c \"\"import cocotb; print\\(cocotb.__version__\\)\"\" && conda run -n cocotb cocotb-config --version\")",
+      "Bash(cmd.exe /C \"conda activate cocotb && python -c \"\"import cocotb; print\\(cocotb.__version__\\)\"\"\")"
     ]
   }
 }
