@@ -4,7 +4,7 @@
 
 set TIME_start [clock seconds] 
 namespace eval ::optrace {
-  variable script "C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.runs/synth_1/top.tcl"
+  variable script "C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.runs/synth_1/top.tcl"
   variable category "vivado_synth"
 }
 
@@ -57,33 +57,35 @@ if {$::dispatch::connected} {
 
 OPTRACE "synth_1" START { ROLLUP_AUTO }
 set_param general.usePosixSpawnForFork 1
-set_param chipscope.maxJobs 2
-set_param xicom.use_bs_reader 1
-set_msg_config -id {Common 17-41} -limit 10000000
+set_param chipscope.maxJobs 3
 OPTRACE "Creating in-memory project" START { }
 create_project -in_memory -part xc7a35tcpg236-1
 
 set_param project.singleFileAddWarning.threshold 0
 set_param project.compositeFile.enableAutoGeneration 0
 set_param synth.vivado.isSynthRun true
-set_property webtalk.parent_dir C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.cache/wt [current_project]
-set_property parent.project_path C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.xpr [current_project]
+set_property webtalk.parent_dir C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.cache/wt [current_project]
+set_property parent.project_path C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.xpr [current_project]
 set_property default_lib xil_defaultlib [current_project]
 set_property target_language Verilog [current_project]
-set_property board_part_repo_paths {C:/Users/Lightcone/AppData/Roaming/Xilinx/Vivado/2025.2/xhub/board_store/xilinx_board_store} [current_project]
+set_property board_part_repo_paths {C:/Users/liger/AppData/Roaming/Xilinx/Vivado/2025.2/xhub/board_store/xilinx_board_store} [current_project]
 set_property board_part digilentinc.com:basys3:part0:1.2 [current_project]
-set_property ip_output_repo c:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.cache/ip [current_project]
+set_property ip_output_repo c:/Documents/uni/term_4/ping-pong/ov7670_uart_test.cache/ip [current_project]
 set_property ip_cache_permissions {read write} [current_project]
 OPTRACE "Creating in-memory project" END { }
 OPTRACE "Adding files" START { }
 read_verilog -library xil_defaultlib {
-  C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.srcs/sources_1/new/camera_config.v
-  C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.srcs/sources_1/new/clk_div.v
-  C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.srcs/sources_1/new/pixel_capture.v
-  C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.srcs/sources_1/new/sccb_master.v
-  C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.srcs/sources_1/new/uart_print.v
-  C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.srcs/sources_1/new/uart_tx.v
-  C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.srcs/sources_1/new/top.v
+  C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sources_1/new/camera_config.v
+  C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sources_1/new/clk_div.v
+  C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sources_1/new/filters.v
+  C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sources_1/new/frame_buffer.v
+  C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sources_1/new/frame_capture.v
+  C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sources_1/new/pixel_capture.v
+  C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sources_1/new/sccb_master.v
+  C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sources_1/new/uart_print.v
+  C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sources_1/new/uart_tx.v
+  C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sources_1/new/vga_sync.v
+  C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/sources_1/new/top.v
 }
 OPTRACE "Adding files" END { }
 # Mark all dcp files as not used in implementation to prevent them from being
@@ -94,12 +96,12 @@ OPTRACE "Adding files" END { }
 foreach dcp [get_files -quiet -all -filter file_type=="Design\ Checkpoint"] {
   set_property used_in_implementation false $dcp
 }
-read_xdc C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.srcs/constrs_1/new/constraints.xdc
-set_property used_in_implementation false [get_files C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.srcs/constrs_1/new/constraints.xdc]
+read_xdc C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/constrs_1/new/constraints.xdc
+set_property used_in_implementation false [get_files C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/constrs_1/new/constraints.xdc]
 
 set_param ips.enableIPCacheLiteLoad 1
 
-read_checkpoint -auto_incremental -incremental C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.srcs/utils_1/imports/synth_1/top.dcp
+read_checkpoint -auto_incremental -incremental C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/utils_1/imports/synth_1/top.dcp
 close [open __synthesis_is_running__ w]
 
 OPTRACE "synth_design" START { }

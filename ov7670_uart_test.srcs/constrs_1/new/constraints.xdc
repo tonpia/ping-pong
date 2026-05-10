@@ -152,7 +152,7 @@ set_property PACKAGE_PIN W15 [get_ports {sw[4]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {sw[4]}]
 
 ## =============================================================================
-## VGA — Basys 3 onboard 12-bit DAC + DB-15 connector
+## VGA - Basys 3 onboard 12-bit DAC + DB-15 connector
 ## =============================================================================
 set_property PACKAGE_PIN G19 [get_ports {vga_r[0]}]
 set_property IOSTANDARD LVCMOS33 [get_ports {vga_r[0]}]

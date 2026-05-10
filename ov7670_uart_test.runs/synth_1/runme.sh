@@ -25,7 +25,7 @@ else
 fi
 export LD_LIBRARY_PATH
 
-HD_PWD='C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.runs/synth_1'
+HD_PWD='C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.runs/synth_1'
 cd "$HD_PWD"
 
 HD_LOG=runme.log

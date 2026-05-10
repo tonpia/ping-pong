@@ -1,5 +1,5 @@
 namespace eval ::optrace {
-  variable script "C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.runs/impl_1/top.tcl"
+  variable script "C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.runs/impl_1/top.tcl"
   variable category "vivado_impl"
 }
 
@@ -97,7 +97,6 @@ proc step_failed { step } {
 OPTRACE "impl_1" END { }
 }
 
-set_msg_config -id {Common 17-41} -limit 10000000
 
 OPTRACE "impl_1" START { ROLLUP_1 }
 OPTRACE "Phase: Init Design" START { ROLLUP_AUTO }
@@ -106,26 +105,25 @@ set ACTIVE_STEP init_design
 set rc [catch {
   create_msg_db init_design.pb
   set_param general.usePosixSpawnForFork 1
-  set_param chipscope.maxJobs 2
-  set_param xicom.use_bs_reader 1
-  set_param runs.launchOptions { -jobs 4  }
+  set_param chipscope.maxJobs 3
+  set_param runs.launchOptions { -jobs 12  }
 OPTRACE "create in-memory project" START { }
   create_project -in_memory -part xc7a35tcpg236-1
-  set_property board_part_repo_paths {C:/Users/Lightcone/AppData/Roaming/Xilinx/Vivado/2025.2/xhub/board_store/xilinx_board_store} [current_project]
+  set_property board_part_repo_paths {C:/Users/liger/AppData/Roaming/Xilinx/Vivado/2025.2/xhub/board_store/xilinx_board_store} [current_project]
   set_property board_part digilentinc.com:basys3:part0:1.2 [current_project]
   set_property design_mode GateLvl [current_fileset]
   set_param project.singleFileAddWarning.threshold 0
 OPTRACE "create in-memory project" END { }
 OPTRACE "set parameters" START { }
-  set_property webtalk.parent_dir C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.cache/wt [current_project]
-  set_property parent.project_path C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.xpr [current_project]
-  set_property ip_output_repo C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.cache/ip [current_project]
+  set_property webtalk.parent_dir C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.cache/wt [current_project]
+  set_property parent.project_path C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.xpr [current_project]
+  set_property ip_output_repo C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.cache/ip [current_project]
   set_property ip_cache_permissions {read write} [current_project]
 OPTRACE "set parameters" END { }
 OPTRACE "add files" START { }
-  add_files -quiet C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.runs/synth_1/top.dcp
+  add_files -quiet C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.runs/synth_1/top.dcp
 OPTRACE "read constraints: implementation" START { }
-  read_xdc C:/Users/Lightcone/Documents/Real_document/College/year-2/semester-2/HW-SYN-LAB/ov7670_uart_test/ov7670_uart_test.srcs/constrs_1/new/constraints.xdc
+  read_xdc C:/Documents/uni/term_4/ping-pong/ov7670_uart_test.srcs/constrs_1/new/constraints.xdc
 OPTRACE "read constraints: implementation" END { }
 OPTRACE "read constraints: implementation_pre" START { }
 OPTRACE "read constraints: implementation_pre" END { }

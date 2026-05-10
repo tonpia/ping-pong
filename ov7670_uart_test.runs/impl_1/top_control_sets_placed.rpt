@@ -1,8 +1,8 @@
 Copyright 1986-2022 Xilinx, Inc. All Rights Reserved. Copyright 2022-2025 Advanced Micro Devices, Inc. All Rights Reserved.
 ---------------------------------------------------------------------------------------------------------------------------------------------
 | Tool Version : Vivado v.2025.2 (win64) Build 6299465 Fri Nov 14 19:35:11 GMT 2025
-| Date         : Wed Apr 22 14:07:38 2026
-| Host         : DESKTOP-QHCLH71 running 64-bit major release  (build 9200)
+| Date         : Sun May 10 16:19:25 2026
+| Host         : gram running 64-bit major release  (build 9200)
 | Command      : report_control_sets -verbose -file top_control_sets_placed.rpt
 | Design       : top
 | Device       : xc7a35t
@@ -23,11 +23,11 @@ Table of Contents
 +----------------------------------------------------------+-------+
 |                          Status                          | Count |
 +----------------------------------------------------------+-------+
-| Total control sets                                       |    24 |
-|    Minimum number of control sets                        |    24 |
+| Total control sets                                       |    30 |
+|    Minimum number of control sets                        |    30 |
 |    Addition due to synthesis replication                 |     0 |
 |    Addition due to physical synthesis replication        |     0 |
-| Unused register locations in slices containing registers |    91 |
+| Unused register locations in slices containing registers |   123 |
 +----------------------------------------------------------+-------+
 * Control sets can be merged at opt_design using control_set_merge or merge_equivalent_drivers
 ** Run report_qor_suggestions for automated merging and remapping suggestions
@@ -39,13 +39,13 @@ Table of Contents
 +--------------------+-------+
 |       Fanout       | Count |
 +--------------------+-------+
-| Total control sets |    24 |
-| >= 0 to < 4        |     5 |
+| Total control sets |    30 |
+| >= 0 to < 4        |     7 |
 | >= 4 to < 6        |     3 |
-| >= 6 to < 8        |     3 |
+| >= 6 to < 8        |     4 |
 | >= 8 to < 10       |     3 |
-| >= 10 to < 12      |     2 |
-| >= 12 to < 14      |     0 |
+| >= 10 to < 12      |     4 |
+| >= 12 to < 14      |     1 |
 | >= 14 to < 16      |     0 |
 | >= 16              |     8 |
 +--------------------+-------+
@@ -58,45 +58,51 @@ Table of Contents
 +--------------+-----------------------+------------------------+-----------------+--------------+
 | Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
 +--------------+-----------------------+------------------------+-----------------+--------------+
-| No           | No                    | No                     |              25 |           12 |
-| No           | No                    | Yes                    |              37 |           14 |
-| No           | Yes                   | No                     |               0 |            0 |
-| Yes          | No                    | No                     |              24 |            3 |
-| Yes          | No                    | Yes                    |             191 |           61 |
-| Yes          | Yes                   | No                     |               0 |            0 |
+| No           | No                    | No                     |              28 |           15 |
+| No           | No                    | Yes                    |              44 |           24 |
+| No           | Yes                   | No                     |              10 |            3 |
+| Yes          | No                    | No                     |              24 |            4 |
+| Yes          | No                    | Yes                    |             233 |           91 |
+| Yes          | Yes                   | No                     |              10 |            3 |
 +--------------+-----------------------+------------------------+-----------------+--------------+
 
 
 4. Detailed Control Set Information
 -----------------------------------
 
-+----------------+------------------------------------------------+------------------+------------------+----------------+--------------+
-|  Clock Signal  |                  Enable Signal                 | Set/Reset Signal | Slice Load Count | Bel Load Count | Bels / Slice |
-+----------------+------------------------------------------------+------------------+------------------+----------------+--------------+
-|  clk_IBUF_BUFG | u_pix_cap/vsync_r2                             | btnC_IBUF        |                1 |              1 |         1.00 |
-|  clk_IBUF_BUFG | u_cam_cfg/u_sccb/scl_i_1_n_0                   | btnC_IBUF        |                1 |              1 |         1.00 |
-|  clk_IBUF_BUFG | u_cam_cfg/u_sccb/sda_i_1_n_0                   | btnC_IBUF        |                1 |              1 |         1.00 |
-|  clk_IBUF_BUFG | u_cam_cfg/config_done                          | btnC_IBUF        |                1 |              1 |         1.00 |
-|  clk_IBUF_BUFG | u_pix_cap/href_r2                              | btnC_IBUF        |                1 |              1 |         1.00 |
-|  clk_IBUF_BUFG | u_uart_print/u_uart/bit_cnt[0]                 | btnC_IBUF        |                1 |              4 |         4.00 |
-|  clk_IBUF_BUFG | u_cam_cfg/u_sccb/bit_index[0]                  | btnC_IBUF        |                1 |              4 |         4.00 |
-|  clk_IBUF_BUFG | u_uart_print/FSM_onehot_state[2]_i_1_n_0       | btnC_IBUF        |                2 |              4 |         2.00 |
-|  clk_IBUF_BUFG | u_uart_print/u_uart/E[0]                       | btnC_IBUF        |                1 |              6 |         6.00 |
-|  clk_IBUF_BUFG | u_uart_print/u_uart/FSM_onehot_state_reg[2][0] | btnC_IBUF        |                3 |              7 |         2.33 |
-|  clk_IBUF_BUFG | u_uart_print/u_uart/shift_reg[0]               | btnC_IBUF        |                1 |              7 |         7.00 |
-|  clk_IBUF_BUFG | u_pix_cap/byte0_2[0]                           | btnC_IBUF        |                2 |              8 |         4.00 |
-|  clk_IBUF_BUFG | u_cam_cfg/u_sccb/shift_reg_1[0]                | btnC_IBUF        |                3 |              8 |         2.67 |
-|  clk_IBUF_BUFG | u_pix_cap/line_cnt_0[0]                        | btnC_IBUF        |                4 |              9 |         2.25 |
-|  clk_IBUF_BUFG | u_pix_cap/byte_cnt_1[0]                        | btnC_IBUF        |                4 |             10 |         2.50 |
-|  clk_IBUF_BUFG | u_uart_print/u_uart/baud_cnt_0[0]              | btnC_IBUF        |                3 |             10 |         3.33 |
-|  clk_IBUF_BUFG | u_pix_cap/E[0]                                 | btnC_IBUF        |                4 |             16 |         4.00 |
-|  clk_IBUF_BUFG | u_cam_cfg/rom_index[5]_i_1_n_0                 | btnC_IBUF        |                7 |             22 |         3.14 |
-|  clk_IBUF_BUFG | u_pix_cap/pclk_rise                            | btnC_IBUF        |                7 |             22 |         3.14 |
-|  clk_IBUF_BUFG | u_pix_cap/pixel_data[15]_i_1_n_0               | btnC_IBUF        |                5 |             24 |         4.80 |
-|  clk_IBUF_BUFG | u_uart_print/msg[4][6]_i_1_n_0                 |                  |                3 |             24 |         8.00 |
-|  clk_IBUF_BUFG |                                                |                  |               12 |             25 |         2.08 |
-|  clk_IBUF_BUFG | u_cam_cfg/u_sccb/E[0]                          | btnC_IBUF        |                8 |             25 |         3.12 |
-|  clk_IBUF_BUFG |                                                | btnC_IBUF        |               14 |             37 |         2.64 |
-+----------------+------------------------------------------------+------------------+------------------+----------------+--------------+
++---------------------+------------------------------------------------+--------------------------+------------------+----------------+--------------+
+|     Clock Signal    |                  Enable Signal                 |     Set/Reset Signal     | Slice Load Count | Bel Load Count | Bels / Slice |
++---------------------+------------------------------------------------+--------------------------+------------------+----------------+--------------+
+|  clk_IBUF_BUFG      | pclk_seen_i_1_n_0                              | btnC_IBUF                |                1 |              1 |         1.00 |
+|  clk_IBUF_BUFG      | cam_href_IBUF                                  | btnC_IBUF                |                1 |              1 |         1.00 |
+|  clk_IBUF_BUFG      | cam_vsync_IBUF                                 | btnC_IBUF                |                1 |              1 |         1.00 |
+|  clk_IBUF_BUFG      | u_cam_cfg/config_done                          | btnC_IBUF                |                1 |              1 |         1.00 |
+|  clk_IBUF_BUFG      | u_cam_cfg/u_sccb/sda_i_1_n_0                   | btnC_IBUF                |                1 |              1 |         1.00 |
+|  clk_IBUF_BUFG      | u_cam_cfg/u_sccb/scl_i_1_n_0                   | btnC_IBUF                |                1 |              1 |         1.00 |
+|  cam_xclk_OBUF_BUFG |                                                |                          |                3 |              3 |         1.00 |
+|  clk_IBUF_BUFG      | u_uart_print/u_uart/bit_cnt[0]                 | btnC_IBUF                |                1 |              4 |         4.00 |
+|  clk_IBUF_BUFG      | u_uart_print/FSM_onehot_state[2]_i_1__0_n_0    | btnC_IBUF                |                2 |              4 |         2.00 |
+|  clk_IBUF_BUFG      | u_cam_cfg/u_sccb/bit_index[0]                  | btnC_IBUF                |                2 |              4 |         2.00 |
+|  clk_IBUF_BUFG      | u_uart_print/u_uart/E[0]                       | btnC_IBUF                |                1 |              6 |         6.00 |
+|  clk_IBUF_BUFG      | u_frame_cap/byte_high_0[0]                     | btnC_IBUF                |                5 |              7 |         1.40 |
+|  clk_IBUF_BUFG      | u_uart_print/u_uart/FSM_onehot_state_reg[2][0] | btnC_IBUF                |                4 |              7 |         1.75 |
+|  clk_IBUF_BUFG      | u_uart_print/u_uart/shift_reg[0]               | btnC_IBUF                |                3 |              7 |         2.33 |
+|  clk_IBUF_BUFG      | u_frame_cap/E[0]                               | btnC_IBUF                |                3 |              8 |         2.67 |
+|  clk_IBUF_BUFG      | u_cam_cfg/u_sccb/shift_reg_1[0]                | btnC_IBUF                |                3 |              8 |         2.67 |
+|  clk_IBUF_BUFG      | u_frame_cap/vsync_r3_reg_1[0]                  | btnC_IBUF                |                2 |              9 |         4.50 |
+|  cam_xclk_OBUF_BUFG |                                                | u_vga/h_count[9]_i_1_n_0 |                3 |             10 |         3.33 |
+|  cam_xclk_OBUF_BUFG | u_vga/v_count[0]                               | btnC_IBUF                |                3 |             10 |         3.33 |
+|  clk_IBUF_BUFG      | u_pix_cap/byte_cnt_0[0]                        | btnC_IBUF                |                2 |             10 |         5.00 |
+|  clk_IBUF_BUFG      | u_uart_print/u_uart/baud_cnt_0[0]              | btnC_IBUF                |                4 |             10 |         2.50 |
+|  clk_IBUF_BUFG      | u_frame_cap/wr_en_i_1_n_0                      | btnC_IBUF                |               10 |             12 |         1.20 |
+|  clk_IBUF_BUFG      | u_pix_cap/pixel_valid_i_1_n_0                  | btnC_IBUF                |                5 |             16 |         3.20 |
+|  clk_IBUF_BUFG      | u_pix_cap/E[0]                                 | btnC_IBUF                |                7 |             16 |         2.29 |
+|  clk_IBUF_BUFG      | u_cam_cfg/rom_index[5]_i_1_n_0                 | btnC_IBUF                |                6 |             22 |         3.67 |
+|  clk_IBUF_BUFG      | u_uart_print/msg[4][6]_i_1_n_0                 |                          |                4 |             24 |         6.00 |
+|  clk_IBUF_BUFG      |                                                |                          |               12 |             25 |         2.08 |
+|  clk_IBUF_BUFG      | u_cam_cfg/u_sccb/E[0]                          | btnC_IBUF                |                9 |             25 |         2.78 |
+|  clk_IBUF_BUFG      |                                                | btnC_IBUF                |               24 |             44 |         1.83 |
+|  clk_IBUF_BUFG      | u_frame_cap/wr_addr[16]_i_1_n_0                | btnC_IBUF                |               16 |             52 |         3.25 |
++---------------------+------------------------------------------------+--------------------------+------------------+----------------+--------------+
 
 

@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 // =============================================================================
-// top.v — OV7670 → BRAM → Filters → VGA pipeline (Basys 3)
+// top.v - OV7670 → BRAM → Filters → VGA pipeline (Basys 3)
 //
 //   100MHz ──┬──> clk_div ──> 25MHz pixel clock (also drives cam_xclk)
 //            │
@@ -52,7 +52,7 @@ module top (
     assign cam_rst  = 1'b1;
 
     // -------------------------------------------------------------------------
-    // 25 MHz pixel clock — shared between OV7670 XCLK and VGA pipeline
+    // 25 MHz pixel clock - shared between OV7670 XCLK and VGA pipeline
     // -------------------------------------------------------------------------
     wire pclk_25;
     clk_div u_clk_div (
@@ -173,7 +173,7 @@ module top (
     assign vga_vs = vsync_w;
 
     // -------------------------------------------------------------------------
-    // UART debug — keep single-pixel sanity path
+    // UART debug - keep single-pixel sanity path
     // -------------------------------------------------------------------------
     wire [15:0] pixel_data;
     wire        pixel_valid;
