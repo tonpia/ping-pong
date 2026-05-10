@@ -1,22 +1,24 @@
 `timescale 1ns / 1ps
 // =============================================================================
-// top.v
-// Top-level for OV7670 camera UART test on Basys 3.
+// top.v — OV7670 → BRAM → Filters → VGA pipeline (Basys 3)
 //
-// DEBUG LED MAP (updated):
-//   LED[15] = config_done (solid after ~500ms)
-//   LED[14] = pixel_valid heartbeat (toggles each captured pixel)
-//   LED[13] = VSYNC toggle (toggles each frame ~30Hz, visible blink)
-//   LED[12] = HREF toggle (toggles each line rising edge ~15kHz, looks solid dim)
-//   LED[11] = PCLK toggle divided by 2^20 (visible blink if PCLK running)
-//   LED[10] = href_ever_high (sticky latch: HIGH if HREF pulsed at least once)
-//   LED[9]  = vsync_ever_high (sticky latch)
-//   LED[8]  = pclk_ever_seen  (sticky latch)
-//   LED[7:0]= upper byte of last captured pixel
+//   100MHz ──┬──> clk_div ──> 25MHz pixel clock (also drives cam_xclk)
+//            │
+//            ├──> camera_config ──> SCCB ──> OV7670
+//            │
+//            ├──> frame_capture ──> frame_buffer (port A, 100MHz writes)
+//            │
+//            └──> vga_sync + pixel_scaler ──> frame_buffer (port B, 25MHz reads)
+//                                       └──> filters ──> VGA RGB444 + HS/VS
+//
+// SW[1:0] selects filter mode (raw / grayscale / invert / channel isolate).
+// SW[4:2] selects which channels survive in isolation mode.
+// UART single-pixel debug path is kept for sanity checking.
 // =============================================================================
 module top (
-    input  wire        clk,
-    input  wire        btnC,
+    input  wire        clk,            // 100 MHz Basys 3 crystal
+    input  wire        btnC,           // active-high reset
+
     // OV7670
     input  wire        cam_pclk,
     input  wire        cam_vsync,
@@ -27,28 +29,41 @@ module top (
     output wire        cam_sda,
     output wire        cam_pwdn,
     output wire        cam_rst,
-    // UART
+
+    // UART debug
     output wire        uart_txd,
-    // LEDs
+
+    // Switches: filter mode + channel mask
+    input  wire [4:0]  sw,
+
+    // VGA
+    output wire        vga_hs,
+    output wire        vga_vs,
+    output wire [3:0]  vga_r,
+    output wire [3:0]  vga_g,
+    output wire [3:0]  vga_b,
+
+    // LEDs (slim debug)
     output wire [15:0] led
 );
     wire rst = btnC;
 
-    // Static camera control
     assign cam_pwdn = 1'b0;
     assign cam_rst  = 1'b1;
 
     // -------------------------------------------------------------------------
-    // XCLK generation (25MHz)
+    // 25 MHz pixel clock — shared between OV7670 XCLK and VGA pipeline
     // -------------------------------------------------------------------------
+    wire pclk_25;
     clk_div u_clk_div (
         .clk_100mhz (clk),
         .rst        (rst),
-        .xclk       (cam_xclk)
+        .xclk       (pclk_25)
     );
+    assign cam_xclk = pclk_25;
 
     // -------------------------------------------------------------------------
-    // SCCB config
+    // SCCB camera configuration
     // -------------------------------------------------------------------------
     wire config_done;
     wire sda_out;
@@ -63,11 +78,105 @@ module top (
     );
 
     // -------------------------------------------------------------------------
-    // Pixel capture
+    // Frame capture: OV7670 → BRAM port A
+    // -------------------------------------------------------------------------
+    wire [16:0] wr_addr;
+    wire [11:0] wr_data;
+    wire        wr_en;
+    wire        frame_done;
+
+    frame_capture #(
+        .H_PIXELS (320),
+        .V_PIXELS (240),
+        .ADDR_W   (17)
+    ) u_frame_cap (
+        .clk         (clk),
+        .rst         (rst),
+        .config_done (config_done),
+        .cam_pclk    (cam_pclk),
+        .cam_vsync   (cam_vsync),
+        .cam_href    (cam_href),
+        .cam_data    (cam_data),
+        .wr_addr     (wr_addr),
+        .wr_data     (wr_data),
+        .wr_en       (wr_en),
+        .frame_done  (frame_done)
+    );
+
+    // -------------------------------------------------------------------------
+    // VGA timing controller
+    // -------------------------------------------------------------------------
+    wire        hsync_w;
+    wire        vsync_w;
+    wire [9:0]  pixel_x;
+    wire [9:0]  pixel_y;
+    wire        video_active;
+
+    vga_sync u_vga (
+        .clk          (pclk_25),
+        .reset        (rst),
+        .hsync        (hsync_w),
+        .vsync        (vsync_w),
+        .pixel_x      (pixel_x),
+        .pixel_y      (pixel_y),
+        .video_active (video_active)
+    );
+
+    // -------------------------------------------------------------------------
+    // Pixel scaler (2x doubling): map 640x480 VGA → 320x240 buffer
+    //   addr = (pixel_y >> 1) * 320 + (pixel_x >> 1)
+    //        = (y << 8) + (y << 6) + x
+    // Address is gated by video_active so blanking-region overflow can't
+    // index past the end of the buffer.
+    // -------------------------------------------------------------------------
+    wire [8:0]  buf_y = pixel_y[9:1];
+    wire [8:0]  buf_x = pixel_x[9:1];
+    wire [16:0] read_addr = {buf_y, 8'b0} + {2'b00, buf_y, 6'b0} + {8'b0, buf_x};
+    wire [16:0] addr_b    = video_active ? read_addr : 17'd0;
+
+    // -------------------------------------------------------------------------
+    // Dual-port frame buffer
+    // -------------------------------------------------------------------------
+    wire [11:0] dout_b;
+    frame_buffer u_fb (
+        .clk_a  (clk),
+        .clk_b  (pclk_25),
+        .we_a   (wr_en),
+        .addr_a (wr_addr),
+        .din_a  (wr_data),
+        .addr_b (addr_b),
+        .dout_b (dout_b)
+    );
+
+    // BRAM port B has 1 clk_b read latency. Register video_active so the
+    // blanking gate aligns with dout_b. (1-pixel horizontal shift is invisible.)
+    reg video_active_d;
+    always @(posedge pclk_25) begin
+        video_active_d <= video_active;
+    end
+
+    // -------------------------------------------------------------------------
+    // Filter mux
+    // -------------------------------------------------------------------------
+    wire [11:0] filt_out;
+    filters u_filt (
+        .pixel_in  (dout_b),
+        .sw        (sw),
+        .pixel_out (filt_out)
+    );
+
+    wire [11:0] vga_rgb = video_active_d ? filt_out : 12'h000;
+    assign vga_r  = vga_rgb[11:8];
+    assign vga_g  = vga_rgb[7:4];
+    assign vga_b  = vga_rgb[3:0];
+    assign vga_hs = hsync_w;
+    assign vga_vs = vsync_w;
+
+    // -------------------------------------------------------------------------
+    // UART debug — keep single-pixel sanity path
     // -------------------------------------------------------------------------
     wire [15:0] pixel_data;
     wire        pixel_valid;
-
     pixel_capture u_pix_cap (
         .clk         (clk),
         .rst         (rst),
@@ -80,9 +189,6 @@ module top (
         .pixel_valid (pixel_valid)
     );
 
-    // -------------------------------------------------------------------------
-    // UART print
-    // -------------------------------------------------------------------------
     wire uart_busy;
     uart_print u_uart_print (
         .clk          (clk),
@@ -93,86 +199,49 @@ module top (
         .busy         (uart_busy)
     );
 
-    // =========================================================================
-    // DEBUG: synchronize camera signals into sys clock domain
-    // =========================================================================
-    reg pclk_r1,  pclk_r2,  pclk_r3;
-    reg vsync_r1, vsync_r2, vsync_r3;
-    reg href_r1,  href_r2,  href_r3;
-    always @(posedge clk) begin
-        pclk_r1  <= cam_pclk;  pclk_r2  <= pclk_r1;  pclk_r3  <= pclk_r2;
-        vsync_r1 <= cam_vsync; vsync_r2 <= vsync_r1; vsync_r3 <= vsync_r2;
-        href_r1  <= cam_href;  href_r2  <= href_r1;  href_r3  <= href_r2;
-    end
-    wire pclk_rise  = (pclk_r2  && !pclk_r3);
-    wire href_rise  = (href_r2  && !href_r3);
-    wire vsync_rise = (vsync_r2 && !vsync_r3);
-
     // -------------------------------------------------------------------------
-    // Toggle flops - these blink if the signal has edges
-    // -------------------------------------------------------------------------
-    reg vsync_toggle;
-    reg href_toggle;
-    reg [20:0] pclk_div;   // Divide 25MHz PCLK edges down to ~12Hz visible blink
-
-    always @(posedge clk or posedge rst) begin
-        if (rst) begin
-            vsync_toggle <= 1'b0;
-            href_toggle  <= 1'b0;
-            pclk_div     <= 21'd0;
-        end else begin
-            if (vsync_rise) vsync_toggle <= ~vsync_toggle;
-            if (href_rise)  href_toggle  <= ~href_toggle;
-            if (pclk_rise)  pclk_div     <= pclk_div + 1;
-        end
-    end
-
-    // -------------------------------------------------------------------------
-    // Sticky "ever seen" latches - these go HIGH forever once the
-    // corresponding signal has been observed high at least once
-    // -------------------------------------------------------------------------
-    reg href_ever_high;
-    reg vsync_ever_high;
-    reg pclk_ever_seen;
-
-    always @(posedge clk or posedge rst) begin
-        if (rst) begin
-            href_ever_high  <= 1'b0;
-            vsync_ever_high <= 1'b0;
-            pclk_ever_seen  <= 1'b0;
-        end else begin
-            if (href_r2)   href_ever_high  <= 1'b1;
-            if (vsync_r2)  vsync_ever_high <= 1'b1;
-            if (pclk_rise) pclk_ever_seen  <= 1'b1;
-        end
-    end
-
-    // -------------------------------------------------------------------------
-    // Heartbeats
+    // LED debug
+    //   [15] config_done sticky
+    //   [14] frame_done heartbeat (toggles each captured frame ~30Hz)
+    //   [13] vsync sticky-seen
+    //   [12] href sticky-seen
+    //   [11] pclk sticky-seen
+    //   [4:0] mirror of switches
     // -------------------------------------------------------------------------
     reg config_done_r;
-    reg pixel_seen;
+    reg frame_toggle;
+    reg vsync_seen, href_seen, pclk_seen;
+    reg pclk_r1, pclk_r2, pclk_r3;
+
     always @(posedge clk or posedge rst) begin
         if (rst) begin
             config_done_r <= 1'b0;
-            pixel_seen    <= 1'b0;
+            frame_toggle  <= 1'b0;
+            vsync_seen    <= 1'b0;
+            href_seen     <= 1'b0;
+            pclk_seen     <= 1'b0;
+            pclk_r1       <= 1'b0;
+            pclk_r2       <= 1'b0;
+            pclk_r3       <= 1'b0;
         end else begin
             if (config_done) config_done_r <= 1'b1;
-            if (pixel_valid) pixel_seen    <= ~pixel_seen;
+            if (frame_done)  frame_toggle  <= ~frame_toggle;
+            if (cam_vsync)   vsync_seen    <= 1'b1;
+            if (cam_href)    href_seen     <= 1'b1;
+
+            pclk_r1 <= cam_pclk;
+            pclk_r2 <= pclk_r1;
+            pclk_r3 <= pclk_r2;
+            if (pclk_r2 && !pclk_r3) pclk_seen <= 1'b1;
         end
     end
 
-    // -------------------------------------------------------------------------
-    // LED assignments
-    // -------------------------------------------------------------------------
-    assign led[15]  = config_done_r;     // Solid after ~500ms
-    assign led[14]  = pixel_seen;        // Toggles each captured pixel
-    assign led[13]  = vsync_toggle;      // Visible blink ~15Hz if camera streaming
-    assign led[12]  = href_toggle;       // Very fast toggle, looks dim-solid if lines active
-    assign led[11]  = pclk_div[20];      // ~12Hz blink if PCLK is actually running
-    assign led[10]  = href_ever_high;    // Sticky: did HREF ever pulse?
-    assign led[9]   = vsync_ever_high;   // Sticky: did VSYNC ever pulse?
-    assign led[8]   = pclk_ever_seen;    // Sticky: did PCLK ever have an edge?
-    assign led[7:0] = pixel_data[15:8];  // Upper byte of last pixel
+    assign led[15]   = config_done_r;
+    assign led[14]   = frame_toggle;
+    assign led[13]   = vsync_seen;
+    assign led[12]   = href_seen;
+    assign led[11]   = pclk_seen;
+    assign led[10:5] = 6'b0;
+    assign led[4:0]  = sw;
 
 endmodule
