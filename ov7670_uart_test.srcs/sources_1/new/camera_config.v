@@ -25,9 +25,9 @@ module camera_config (
         config_rom[3]  = 16'h3A04; // TSLB
 
         // --- QVGA scaling ---
-        config_rom[4]  = 16'h0C0C; // COM3: DCW + scale enable
-        config_rom[5]  = 16'h3E19; // COM14: DCW/scaling PCLK enable, divide by 2
-        config_rom[6]  = 16'h1100; // CLKRC: PCLK = XCLK
+        config_rom[4]  = 16'h0C08; // COM3: enable scaling
+        config_rom[5]  = 16'h3E00; // COM14
+        config_rom[6]  = 16'h1100; // CLKRC
 
         // --- AWB + AEC + AGC all enabled ---
         config_rom[7]  = 16'h13E7; // COM8
@@ -62,11 +62,11 @@ module camera_config (
         // --- Scaling coefficients (test pattern bits cleared) ---
         config_rom[29] = 16'h703A; // SCALING_XSC default
         config_rom[30] = 16'h7135; // SCALING_YSC default
-        config_rom[31] = 16'h7211; // SCALING_DCWCTR: H/2, V/2 down-sample
-        config_rom[32] = 16'h73F1; // SCALING_PCLK_DIV: divide scaling PCLK by 2
-        config_rom[33] = 16'hA202; // SCALING_PCLK_DELAY
 
         // --- End sentinels ---
+        config_rom[31] = 16'hFFFF;
+        config_rom[32] = 16'hFFFF;
+        config_rom[33] = 16'hFFFF;
         config_rom[34] = 16'hFFFF;
         config_rom[35] = 16'hFFFF;
         config_rom[36] = 16'hFFFF;
