@@ -53,22 +53,22 @@ module frame_capture #(
     // -------------------------------------------------------------------------
     // 3-stage synchronizers for camera-domain signals
     // -------------------------------------------------------------------------
-    reg pclk_r1,  pclk_r2,  pclk_r3;
+    reg pclk_r1,  pclk_r2,  pclk_r3, pclk_r4;
     reg vsync_r1, vsync_r2, vsync_r3;
     reg href_r1,  href_r2,  href_r3;
     reg [7:0] data_r1, data_r2;
 
     always @(posedge clk) begin
-        pclk_r1  <= cam_pclk;  pclk_r2  <= pclk_r1;  pclk_r3  <= pclk_r2;
+        pclk_r1 <= cam_pclk;  pclk_r2 <= pclk_r1;  pclk_r3 <= pclk_r2;  pclk_r4 <= pclk_r3;
         vsync_r1 <= cam_vsync; vsync_r2 <= vsync_r1; vsync_r3 <= vsync_r2;
         href_r1  <= cam_href;  href_r2  <= href_r1;  href_r3  <= href_r2;
         data_r1  <= cam_data;  data_r2  <= data_r1;
     end
 
-    wire pclk_rise  = ( pclk_r2  && !pclk_r3);
-    wire vsync_rise = ( vsync_r2 && !vsync_r3);
-    wire vsync_fall = (!vsync_r2 &&  vsync_r3);
-    wire href_fall  = (!href_r2  &&  href_r3);
+    wire pclk_rise  = ( pclk_r3  && !pclk_r4);
+    wire vsync_fall = ( vsync_r2 && !vsync_r3);
+    wire vsync_rise = (!vsync_r2 &&  vsync_r3);
+    wire href_fall  = (href_r2  &&  !href_r3);
 
     // -------------------------------------------------------------------------
     // Byte-pair assembly state
@@ -138,10 +138,12 @@ module frame_capture #(
                     // End-of-line: advance row_base, reset col + byte phase
                     else if (href_fall) begin
                         col_cnt  <= 10'd0;
-                        byte_sel <= 1'b0;
+                        byte_sel <= 1'b0;  // Already done, good
                         if (row_cnt < V_PIXELS - 1) begin
                             row_cnt  <= row_cnt + 1'b1;
                             row_base <= row_base + H_PIXELS;
+                        end else begin
+                            row_cnt <= 9'd239;  // Cap it
                         end
                     end
                     // Sample a pixel byte; drop anything past H_PIXELS
@@ -152,9 +154,9 @@ module frame_capture #(
                             byte_high <= data_r2;
                             byte_sel  <= 1'b1;
                         end else begin
-                            wr_data  <= { byte_high[7:4],            // R[4:1]
-                                          byte_high[2:0], data_r2[7],// G[5:2]
-                                          data_r2[4:1] };            // B[4:1]
+                            wr_data  <= { data_r2[7:4],              // R[4:1]
+                                            data_r2[2:0], byte_high[7],// G[5:2]
+                                            byte_high[4:1] };            // B[4:1]
                             wr_addr  <= row_base + col_cnt;
                             wr_en    <= 1'b1;
                             col_cnt  <= col_cnt + 1'b1;
