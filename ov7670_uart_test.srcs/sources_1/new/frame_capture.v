@@ -119,8 +119,8 @@ module frame_capture #(
                 end
 
                 S_WAIT_FRAME: begin
-                    // VSYNC just went low -> active frame begins
-                    if (vsync_fall) begin
+                    // VSYNC just went high -> active frame begins (try inverted polarity)
+                    if (vsync_rise) begin
                         row_cnt  <= 9'd0;
                         col_cnt  <= 10'd0;
                         row_base <= {ADDR_W{1'b0}};
@@ -148,7 +148,8 @@ module frame_capture #(
                     end
                     // Sample a pixel byte; drop anything past H_PIXELS
                     // columns or V_PIXELS rows.
-                    else if (pclk_rise && href_r2 &&
+                    // Try inverted HREF polarity: sample when href_r2 is LOW
+                    else if (pclk_rise && !href_r2 &&
                              col_cnt < H_PIXELS && row_cnt < V_PIXELS) begin
                         if (byte_sel == 1'b0) begin
                             byte_high <= data_r2;
