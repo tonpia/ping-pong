@@ -65,10 +65,11 @@ module frame_capture #(
         data_r1  <= cam_data;  data_r2  <= data_r1;
     end
 
-    wire pclk_rise  = (!pclk_r3  && pclk_r4);
-    wire vsync_fall = ( vsync_r2 && !vsync_r3);
-    wire vsync_rise = (!vsync_r2 &&  vsync_r3);
-    wire href_fall  = (href_r2  &&  !href_r3);
+    wire pclk_rise  = ( pclk_r3  && !pclk_r4);     // rising edge
+    wire vsync_fall = ( vsync_r2 && !vsync_r3);     // 1->0 transition
+    wire vsync_rise = (!vsync_r2 &&  vsync_r3);     // 0->1 transition
+    wire href_fall  = ( href_r2  && !href_r3);      // 1->0 (end of line)
+    wire href_rise  = (!href_r2  &&  href_r3);      // 0->1 (start of line)
 
     // -------------------------------------------------------------------------
     // Byte-pair assembly state
@@ -94,23 +95,27 @@ module frame_capture #(
     localparam S_WAIT_FRAME  = 2'd1;
     localparam S_CAPTURE     = 2'd2;
     reg [1:0] state;
+    
+    // Debug: count captured pixels per frame
+    reg [16:0] pixel_count;
 
     always @(posedge clk or posedge rst) begin
         if (rst) begin
-            state      <= S_WAIT_CONFIG;
-            wr_addr    <= {ADDR_W{1'b0}};
-            wr_data    <= 12'd0;
-            wr_en      <= 1'b0;
-            frame_done <= 1'b0;
-            byte_sel   <= 1'b0;
-            byte_high  <= 8'd0;
-            row_cnt    <= 9'd0;
-            col_cnt    <= 10'd0;
-            row_base   <= {ADDR_W{1'b0}};
+            state       <= S_WAIT_CONFIG;
+            wr_addr     <= {ADDR_W{1'b0}};
+            wr_data     <= 12'd0;
+            wr_en       <= 1'b0;
+            frame_done  <= 1'b0;
+            byte_sel    <= 1'b0;
+            byte_high   <= 8'd0;
+            row_cnt     <= 9'd0;
+            col_cnt     <= 10'd0;
+            row_base    <= {ADDR_W{1'b0}};
+            pixel_count <= 17'd0;
         end else begin
             // 1-cycle pulses default low
-            wr_en      <= 1'b0;
-            frame_done <= 1'b0;
+            wr_en       <= 1'b0;
+            frame_done  <= 1'b0;
 
             case (state)
                 S_WAIT_CONFIG: begin
@@ -119,49 +124,52 @@ module frame_capture #(
                 end
 
                 S_WAIT_FRAME: begin
-                    // VSYNC just went high -> active frame begins (try inverted polarity)
+                    // Try: VSYNC rising (0->1) triggers frame capture
                     if (vsync_rise) begin
-                        row_cnt  <= 9'd0;
-                        col_cnt  <= 10'd0;
-                        row_base <= {ADDR_W{1'b0}};
-                        byte_sel <= 1'b0;
-                        state    <= S_CAPTURE;
+                        row_cnt     <= 9'd0;
+                        col_cnt     <= 10'd0;
+                        row_base    <= {ADDR_W{1'b0}};
+                        byte_sel    <= 1'b0;
+                        pixel_count <= 17'd0;
+                        state       <= S_CAPTURE;
                     end
                 end
 
                 S_CAPTURE: begin
-                    // End-of-frame: VSYNC rising returns to inactive
-                    if (vsync_rise) begin
-                        frame_done <= 1'b1;
-                        state      <= S_WAIT_FRAME;
+                    // End-of-frame: VSYNC falling (1->0) ends capture
+                    if (vsync_fall) begin
+                        frame_done  <= 1'b1;
+                        state       <= S_WAIT_FRAME;
                     end
                     // End-of-line: advance row_base, reset col + byte phase
                     else if (href_fall) begin
                         col_cnt  <= 10'd0;
-                        byte_sel <= 1'b0;  // Already done, good
+                        byte_sel <= 1'b0;
                         if (row_cnt < V_PIXELS - 1) begin
                             row_cnt  <= row_cnt + 1'b1;
                             row_base <= row_base + H_PIXELS;
-                        end else begin
-                            row_cnt <= 9'd239;  // Cap it
                         end
                     end
                     // Sample a pixel byte; drop anything past H_PIXELS
                     // columns or V_PIXELS rows.
-                    // Try inverted HREF polarity: sample when href_r2 is LOW
-                    else if (pclk_rise && !href_r2 &&
+                    // Try: Sample when HREF goes HIGH (rising edge) or stays HIGH
+                    else if (pclk_rise && (href_r2 || href_rise) &&
                              col_cnt < H_PIXELS && row_cnt < V_PIXELS) begin
                         if (byte_sel == 1'b0) begin
                             byte_high <= data_r2;
                             byte_sel  <= 1'b1;
                         end else begin
-                            wr_data  <= { byte_high[7:4],            // R[4:1]
-                                          byte_high[2:0], data_r2[7],// G[5:2]
-                                          data_r2[4:1] };            // B[4:1]
-                            wr_addr  <= row_base + col_cnt;
-                            wr_en    <= 1'b1;
-                            col_cnt  <= col_cnt + 1'b1;
-                            byte_sel <= 1'b0;
+                            // Standard OV7670 RGB565 byte order:
+                            // byte_high (first) = { R[4:0], G[5:3] }
+                            // data_r2 (second)  = { G[2:0], B[4:0] }
+                            wr_data      <= { byte_high[7:4],            // R[4:1]
+                                              byte_high[2:0], data_r2[7],// G[5:2]
+                                              data_r2[4:1] };            // B[4:1]
+                            wr_addr      <= row_base + col_cnt;
+                            wr_en        <= 1'b1;
+                            col_cnt      <= col_cnt + 1'b1;
+                            byte_sel     <= 1'b0;
+                            pixel_count  <= pixel_count + 1'b1;
                         end
                     end
                 end
