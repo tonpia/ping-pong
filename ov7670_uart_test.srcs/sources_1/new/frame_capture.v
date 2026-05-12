@@ -65,7 +65,7 @@ module frame_capture #(
         data_r1  <= cam_data;  data_r2  <= data_r1;
     end
 
-    wire pclk_rise  = ( pclk_r3  && !pclk_r4);
+    wire pclk_rise  = (!pclk_r3  && pclk_r4);
     wire vsync_fall = ( vsync_r2 && !vsync_r3);
     wire vsync_rise = (!vsync_r2 &&  vsync_r3);
     wire href_fall  = (href_r2  &&  !href_r3);
