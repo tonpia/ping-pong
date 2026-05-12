@@ -152,19 +152,19 @@ module frame_capture #(
                     end
                     // Sample a pixel byte; drop anything past H_PIXELS
                     // columns or V_PIXELS rows.
-                    // Try: Sample when HREF goes HIGH (rising edge) or stays HIGH
-                    else if (pclk_rise && (href_r2 || href_rise) &&
+                    // Sample when HREF is HIGH (during active pixel time)
+                    else if (pclk_rise && href_r2 &&
                              col_cnt < H_PIXELS && row_cnt < V_PIXELS) begin
                         if (byte_sel == 1'b0) begin
                             byte_high <= data_r2;
                             byte_sel  <= 1'b1;
                         end else begin
-                            // Standard OV7670 RGB565 byte order:
-                            // byte_high (first) = { R[4:0], G[5:3] }
-                            // data_r2 (second)  = { G[2:0], B[4:0] }
-                            wr_data      <= { byte_high[7:4],            // R[4:1]
-                                              byte_high[2:0], data_r2[7],// G[5:2]
-                                              data_r2[4:1] };            // B[4:1]
+                            // Variant 1: Try REVERSED byte order - second byte first (low byte first)
+                            // Assume: data_r2 (second)  = { R[4:0], G[5:3] }
+                            //         byte_high (first) = { G[2:0], B[4:0] }
+                            wr_data      <= { data_r2[7:4],             // R[4:1]
+                                              data_r2[2:0], byte_high[7],// G[5:2]
+                                              byte_high[4:1] };          // B[4:1]
                             wr_addr      <= row_base + col_cnt;
                             wr_en        <= 1'b1;
                             col_cnt      <= col_cnt + 1'b1;
