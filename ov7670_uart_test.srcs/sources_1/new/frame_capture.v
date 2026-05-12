@@ -154,9 +154,9 @@ module frame_capture #(
                             byte_high <= data_r2;
                             byte_sel  <= 1'b1;
                         end else begin
-                            wr_data  <= { data_r2[7:4],              // R[4:1]
-                                            data_r2[2:0], byte_high[7],// G[5:2]
-                                            byte_high[4:1] };            // B[4:1]
+                            wr_data  <= { byte_high[7:4],            // R[4:1]
+                                          byte_high[2:0], data_r2[7],// G[5:2]
+                                          data_r2[4:1] };            // B[4:1]
                             wr_addr  <= row_base + col_cnt;
                             wr_en    <= 1'b1;
                             col_cnt  <= col_cnt + 1'b1;

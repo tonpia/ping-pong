@@ -132,12 +132,7 @@ module top (
     wire [8:0]  buf_y = pixel_y[9:1];
     wire [8:0]  buf_x = pixel_x[9:1];
     wire [16:0] read_addr = {buf_y, 8'b0} + {2'b00, buf_y, 6'b0} + {8'b0, buf_x};
-    reg [16:0] addr_b_r;
-    reg video_active_r;
-    always @(posedge pclk_25) begin
-        addr_b_r <= addr_b;
-        video_active_r <= video_active;
-    end
+    wire [16:0] addr_b = video_active ? read_addr : 17'd0;
 
     // -------------------------------------------------------------------------
     // Dual-port frame buffer
