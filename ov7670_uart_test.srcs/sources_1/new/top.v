@@ -123,15 +123,27 @@ module top (
     );
 
     // -------------------------------------------------------------------------
-    // Pixel scaler (2x doubling): map 640x480 VGA → 320x240 buffer
-    //   addr = (pixel_y >> 1) * 320 + (pixel_x >> 1)
-    //        = (y << 8) + (y << 6) + x
-    // Address is gated by video_active so blanking-region overflow can't
-    // index past the end of the buffer.
+    // Pixel scaler with 90° CW rotation. Camera is mounted rotated 90° CCW
+    // relative to the display, so we rotate the read CW to compensate.
+    //   buf_x = pixel_x[9:1]  in [0..319]
+    //   buf_y = pixel_y[9:1]  in [0..239]
+    // CW rotation:  rotated(r',c') = original(R-1-c', r')   with R = 240.
+    // Aspect: rotated frame is 240×320 (portrait); we stretch it to fill the
+    // 320×240 screen with shift-friendly factors (3/4 horiz squish, 5/4 vert
+    // stretch — close to 4/3, ~7% bottom crop). Final mapping:
+    //   cam_row = 239 - (buf_x * 3) >> 2          (0..239)
+    //   cam_col = buf_y + (buf_y >> 2)            (0..298)
+    //   addr    = cam_row * 320 + cam_col
+    //           = (cam_row << 8) + (cam_row << 6) + cam_col
     // -------------------------------------------------------------------------
     wire [8:0]  buf_y = pixel_y[9:1];
     wire [8:0]  buf_x = pixel_x[9:1];
-    wire [16:0] read_addr = {buf_y, 8'b0} + {2'b00, buf_y, 6'b0} + {8'b0, buf_x};
+
+    wire [10:0] buf_x_x3 = {2'b00, buf_x} + {1'b0, buf_x, 1'b0};   // buf_x * 3
+    wire [8:0]  cam_row  = 9'd239 - buf_x_x3[10:2];                // 239 - buf_x*3/4
+    wire [9:0]  cam_col  = {1'b0, buf_y} + {3'b000, buf_y[8:2]};   // buf_y * 5/4
+
+    wire [16:0] read_addr = {cam_row, 8'b0} + {2'b00, cam_row, 6'b0} + {7'b0, cam_col};
     wire [16:0] addr_b    = video_active ? read_addr : 17'd0;
 
     // -------------------------------------------------------------------------
