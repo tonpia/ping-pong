@@ -11,7 +11,16 @@
       "Bash(cmd.exe /C \"conda run -n cocotb python -c \"\"import cocotb; print\\(cocotb.__version__\\)\"\"\")",
       "Bash(cmd.exe /C \"conda run -n cocotb python -c \"\"import cocotb; print\\(cocotb.__version__\\)\"\" && conda run -n cocotb cocotb-config --version\")",
       "Bash(cmd.exe /C \"conda activate cocotb && python -c \"\"import cocotb; print\\(cocotb.__version__\\)\"\"\")",
+<<<<<<< Updated upstream
       "Bash(git checkout *)"
+=======
+      "Bash(git checkout *)",
+      "Bash(dir FINAL_PROJECT_REPORT.md)",
+      "Bash(git restore *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)"
+>>>>>>> Stashed changes
     ]
   }
 }
