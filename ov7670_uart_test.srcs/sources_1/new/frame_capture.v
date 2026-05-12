@@ -159,12 +159,12 @@ module frame_capture #(
                             byte_high <= data_r2;
                             byte_sel  <= 1'b1;
                         end else begin
-                            // Variant 1: Try REVERSED byte order - second byte first (low byte first)
+                            // FIXED: Swap R and B channels (R was displaying B, making red artifacts)
                             // Assume: data_r2 (second)  = { R[4:0], G[5:3] }
                             //         byte_high (first) = { G[2:0], B[4:0] }
-                            wr_data      <= { data_r2[7:4],             // R[4:1]
-                                              data_r2[2:0], byte_high[7],// G[5:2]
-                                              byte_high[4:1] };          // B[4:1]
+                            wr_data      <= { byte_high[4:1],           // B[4:1] -> R output (was too red, now corrected)
+                                              data_r2[2:0], byte_high[7],// G[5:2] (unchanged)
+                                              data_r2[7:4] };            // R[4:1] -> B output
                             wr_addr      <= row_base + col_cnt;
                             wr_en        <= 1'b1;
                             col_cnt      <= col_cnt + 1'b1;
