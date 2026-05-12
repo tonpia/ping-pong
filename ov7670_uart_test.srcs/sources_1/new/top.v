@@ -123,28 +123,31 @@ module top (
     );
 
     // -------------------------------------------------------------------------
-    // Pixel scaler with 90° CW rotation. Camera is mounted rotated 90° CCW
-    // relative to the display, so we rotate the read CW to compensate.
-    //   buf_x = pixel_x[9:1]  in [0..319]
-    //   buf_y = pixel_y[9:1]  in [0..239]
-    // CW rotation:  rotated(r',c') = original(R-1-c', r')   with R = 240.
-    // Aspect: rotated frame is 240×320 (portrait); we stretch it to fill the
-    // 320×240 screen with shift-friendly factors (3/4 horiz squish, 5/4 vert
-    // stretch — close to 4/3, ~7% bottom crop). Final mapping:
-    //   cam_row = 239 - (buf_x * 3) >> 2          (0..239)
-    //   cam_col = buf_y + (buf_y >> 2)            (0..298)
-    //   addr    = cam_row * 320 + cam_col
-    //           = (cam_row << 8) + (cam_row << 6) + cam_col
+    // Pixel scaler — pure 2× pixel doubling with 90° CW rotation.
+    // Camera is mounted rotated 90° CCW; rotating the read CW corrects it.
+    // The rotated frame is 240W × 320H (portrait). Pixel-doubled = 480 × 640,
+    // which is taller than the 640×480 screen, so we crop 40 rotated rows
+    // from the top and bottom (cropping ~25% of the original horizontal FOV).
+    // The 480×480 image is centered horizontally with 80 px black bars on
+    // each side. No fractional scaling → no staircase / row-skipping artifacts.
+    //
+    //   in_image = pixel_x in [80,560) && video_active
+    //   img_x    = (pixel_x - 80) >> 1     in [0..239]   (rotated col)
+    //   img_y    = pixel_y >> 1            in [0..239]
+    //   rot_row  = img_y + 40              in [40..279]  (cropped rotated row)
+    //   CW rotate:  cam_row = 239 - img_x,  cam_col = rot_row
+    //   addr      = cam_row * 320 + cam_col
+    //             = (cam_row << 8) + (cam_row << 6) + cam_col
     // -------------------------------------------------------------------------
-    wire [8:0]  buf_y = pixel_y[9:1];
-    wire [8:0]  buf_x = pixel_x[9:1];
+    wire        in_image = video_active && (pixel_x >= 10'd80) && (pixel_x < 10'd560);
 
-    wire [10:0] buf_x_x3 = {2'b00, buf_x} + {1'b0, buf_x, 1'b0};   // buf_x * 3
-    wire [8:0]  cam_row  = 9'd239 - buf_x_x3[10:2];                // 239 - buf_x*3/4
-    wire [9:0]  cam_col  = {1'b0, buf_y} + {3'b000, buf_y[8:2]};   // buf_y * 5/4
+    wire [8:0]  img_x   = (pixel_x - 10'd80) >> 1;   // 0..239
+    wire [8:0]  img_y   = pixel_y[9:1];              // 0..239
+    wire [8:0]  cam_row = 9'd239 - img_x;            // 0..239
+    wire [8:0]  cam_col = img_y + 9'd40;             // 40..279
 
-    wire [16:0] read_addr = {cam_row, 8'b0} + {2'b00, cam_row, 6'b0} + {7'b0, cam_col};
-    wire [16:0] addr_b    = video_active ? read_addr : 17'd0;
+    wire [16:0] read_addr = {cam_row[7:0], 8'b0} + {2'b00, cam_row[7:0], 6'b0} + {8'b0, cam_col};
+    wire [16:0] addr_b    = in_image ? read_addr : 17'd0;
 
     // -------------------------------------------------------------------------
     // Dual-port frame buffer
@@ -160,11 +163,11 @@ module top (
         .dout_b (dout_b)
     );
 
-    // BRAM port B has 1 clk_b read latency. Register video_active so the
+    // BRAM port B has 1 clk_b read latency. Register in_image so the
     // blanking gate aligns with dout_b. (1-pixel horizontal shift is invisible.)
-    reg video_active_d;
+    reg in_image_d;
     always @(posedge pclk_25) begin
-        video_active_d <= video_active;
+        in_image_d <= in_image;
     end
 
     // -------------------------------------------------------------------------
@@ -177,7 +180,7 @@ module top (
         .pixel_out (filt_out)
     );
 
-    wire [11:0] vga_rgb = video_active_d ? filt_out : 12'h000;
+    wire [11:0] vga_rgb = in_image_d ? filt_out : 12'h000;
     assign vga_r  = vga_rgb[11:8];
     assign vga_g  = vga_rgb[7:4];
     assign vga_b  = vga_rgb[3:0];

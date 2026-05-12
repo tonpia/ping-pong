@@ -56,13 +56,13 @@ module frame_capture #(
     reg pclk_r1,  pclk_r2,  pclk_r3;
     reg vsync_r1, vsync_r2, vsync_r3;
     reg href_r1,  href_r2,  href_r3;
-    reg [7:0] data_r1, data_r2;
+    reg [7:0] data_r1, data_r2, data_r3;
 
     always @(posedge clk) begin
         pclk_r1  <= cam_pclk;  pclk_r2  <= pclk_r1;  pclk_r3  <= pclk_r2;
         vsync_r1 <= cam_vsync; vsync_r2 <= vsync_r1; vsync_r3 <= vsync_r2;
         href_r1  <= cam_href;  href_r2  <= href_r1;  href_r3  <= href_r2;
-        data_r1  <= cam_data;  data_r2  <= data_r1;
+        data_r1  <= cam_data;  data_r2  <= data_r1;  data_r3  <= data_r2;
     end
 
     wire pclk_rise  = ( pclk_r2  && !pclk_r3);
@@ -149,12 +149,12 @@ module frame_capture #(
                     else if (pclk_rise && href_r2 &&
                              col_cnt < H_PIXELS && row_cnt < V_PIXELS) begin
                         if (byte_sel == 1'b0) begin
-                            byte_high <= data_r2;
+                            byte_high <= data_r3;
                             byte_sel  <= 1'b1;
                         end else begin
                             wr_data  <= { byte_high[7:4],            // R[4:1]
-                                          byte_high[2:0], data_r2[7],// G[5:2]
-                                          data_r2[4:1] };            // B[4:1]
+                                          byte_high[2:0], data_r3[7],// G[5:2]
+                                          data_r3[4:1] };            // B[4:1]
                             wr_addr  <= row_base + col_cnt;
                             wr_en    <= 1'b1;
                             col_cnt  <= col_cnt + 1'b1;

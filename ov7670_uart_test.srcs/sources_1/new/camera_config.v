@@ -37,14 +37,17 @@ module camera_config (
         config_rom[9]  = 16'h1000; // AECH
         config_rom[10] = 16'h1E07; // MVFP
 
-        // --- Color matrix ---
-        config_rom[11] = 16'h4F6E;
-        config_rom[12] = 16'h5038;
-        config_rom[13] = 16'h5111;
-        config_rom[14] = 16'h527B;
-        config_rom[15] = 16'h5385;
-        config_rom[16] = 16'h541E;
-        config_rom[17] = 16'h581E;
+        // --- Color matrix (OmniVision reference values for RGB565) ---
+        // Old matrix produced a saturated yellow cast — these are the values
+        // documented in the OV7670 app note and used by most working drivers.
+        // MTXS bit 7 MUST be set; clearing it inverts the matrix sign bits.
+        config_rom[11] = 16'h4FB3; // MTX1
+        config_rom[12] = 16'h50B3; // MTX2
+        config_rom[13] = 16'h5100; // MTX3
+        config_rom[14] = 16'h523D; // MTX4
+        config_rom[15] = 16'h53A7; // MTX5
+        config_rom[16] = 16'h54E4; // MTX6
+        config_rom[17] = 16'h589E; // MTXS — sign bits, bit 7 set
 
         // --- Gamma ---
         config_rom[18] = 16'h7A20;
@@ -63,9 +66,14 @@ module camera_config (
         config_rom[29] = 16'h703A; // SCALING_XSC default
         config_rom[30] = 16'h7135; // SCALING_YSC default
 
+        // --- Exposure/gain tuning (cap AGC, enable UV auto adjust + gamma) ---
+        // Without these the AGC pushed gain too high → washed-out bright frame.
+        config_rom[31] = 16'h1408; // COM9: max AGC = 2x — lower ceiling = less
+                                   //                    sensor-noise sparkle
+                                   //                    (was 0x18 = 4x)
+        config_rom[32] = 16'h3DC0; // COM13: gamma + UV auto saturation adjust
+
         // --- End sentinels ---
-        config_rom[31] = 16'hFFFF;
-        config_rom[32] = 16'hFFFF;
         config_rom[33] = 16'hFFFF;
         config_rom[34] = 16'hFFFF;
         config_rom[35] = 16'hFFFF;
