@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(findstr /i tb)",
+      "PowerShell($cocotbPython = \\(Get-ChildItem -Path \"$env:USERPROFILE\\\\miniconda3\\\\envs\\\\cocotb\\\\python.exe\",\"$env:USERPROFILE\\\\anaconda3\\\\envs\\\\cocotb\\\\python.exe\",\"C:\\\\ProgramData\\\\miniconda3\\\\envs\\\\cocotb\\\\python.exe\",\"C:\\\\ProgramData\\\\anaconda3\\\\envs\\\\cocotb\\\\python.exe\" -ErrorAction SilentlyContinue | Select-Object -First 1\\).FullName; if \\($cocotbPython\\) { Write-Output \"Found: $cocotbPython\"; & $cocotbPython -c \"import cocotb; print\\('cocotb', cocotb.__version__\\)\" } else { Write-Output \"cocotb conda env python not found\" })"
+    ]
+  }
+}

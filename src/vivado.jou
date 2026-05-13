@@ -1,0 +1,28 @@
+#-----------------------------------------------------------
+# Vivado v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Tue May 12 12:40:01 2026
+# Process ID         : 9484
+# Current directory  : C:/Documents/uni/term_4/HW_project/src
+# Command line       : vivado.exe -gui_launcher_event rodinguilauncherevent2140 C:\Documents\uni\term_4\HW_project\src\project_1.xpr
+# Log file           : C:/Documents/uni/term_4/HW_project/src/vivado.log
+# Journal file       : C:/Documents/uni/term_4/HW_project/src\vivado.jou
+# Running On         : gram
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i5-1334U
+# CPU Frequency      : 2496 MHz
+# CPU Physical cores : 10
+# CPU Logical cores  : 12
+# Host memory        : 16847 MB
+# Swap memory        : 17179 MB
+# Total Virtual      : 34027 MB
+# Available Virtual  : 17903 MB
+#-----------------------------------------------------------
+start_gui
+open_project C:/Documents/uni/term_4/HW_project/src/project_1.xpr
+update_compile_order -fileset sources_1
+reset_run impl_1
+reset_run synth_1

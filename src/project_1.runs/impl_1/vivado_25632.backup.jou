@@ -1,0 +1,24 @@
+#-----------------------------------------------------------
+# Vivado v2025.2 (64-bit)
+# SW Build 6299465 on Fri Nov 14 19:35:11 GMT 2025
+# IP Build 6300035 on Fri Nov 14 10:48:45 MST 2025
+# SharedData Build 6298862 on Thu Nov 13 04:50:51 MST 2025
+# Start of session at: Tue May 12 15:27:44 2026
+# Process ID         : 25632
+# Current directory  : C:/Documents/uni/term_4/HW_project/src/project_1.runs/impl_1
+# Command line       : vivado.exe -log ov7670_top.vdi -applog -product Vivado -messageDb vivado.pb -mode batch -source ov7670_top.tcl -notrace
+# Log file           : C:/Documents/uni/term_4/HW_project/src/project_1.runs/impl_1/ov7670_top.vdi
+# Journal file       : C:/Documents/uni/term_4/HW_project/src/project_1.runs/impl_1\vivado.jou
+# Running On         : gram
+# Platform           : Windows Server 2016 or Windows 10
+# Operating System   : 26200
+# Processor Detail   : 13th Gen Intel(R) Core(TM) i5-1334U
+# CPU Frequency      : 2496 MHz
+# CPU Physical cores : 10
+# CPU Logical cores  : 12
+# Host memory        : 16847 MB
+# Swap memory        : 17179 MB
+# Total Virtual      : 34027 MB
+# Available Virtual  : 13955 MB
+#-----------------------------------------------------------
+source ov7670_top.tcl -notrace
